@@ -79,6 +79,7 @@ function StartMainScript(titleText)
     local MainTab = Window:CreateTab("Main", true)
     local DefenseTab = Window:CreateTab("Defense", true)
     local VisualTab = Window:CreateTab("Visual", true)
+    local BlodmanTab = Window:CreateTab("Blodman", true)
 
     local KickBlock = MainTab:CreateBlock({Name = "Ownership Kick", Side = "Left"})
     local PalletBlock = MainTab:CreateBlock({Name = "Pallet Ragdoll", Side = "Right"})
@@ -93,6 +94,165 @@ function StartMainScript(titleText)
     local AntiLagBlock = DefenseTab:CreateBlock({Name = "Anti-Lag", Side = "Left"})
     local AutoAntiLagBlock = DefenseTab:CreateBlock({Name = "Auto Anti-Lag", Side = "Left"})
     local VisualBlock = VisualTab:CreateBlock({Name = "Visual Settings", Side = "Left"})
+    
+    local BlodmanMainBlock = BlodmanTab:CreateBlock({Name = "BLODMAN KICK", Side = "Left"})
+    local BlodmanSettingsBlock = BlodmanTab:CreateBlock({Name = "Settings", Side = "Right"})
+
+    local AntiInputBlock = DefenseTab:CreateBlock({Name = "Anti-Input [Item]", Side = "Left"})
+    local antiInputActive = false
+    local antiInputTask = nil
+    local antiInputSpeed = 0.1
+
+    local InputToyList = {
+        ["White Mug"] = "CupMugWhite",
+        ["Brown Mug"] = "CupMugBrown",
+        ["Hamburger"] = "FoodHamburger",
+        ["Pizza"] = "FoodPizzaCheese",
+        ["Hotdog"] = "FoodHotdog",
+        ["French Fries"] = "FoodFrenchFries",
+        ["Coconut"] = "FoodCoconut",
+        ["Banana"] = "FoodBanana",
+        ["Donut"] = "FoodDonut",
+        ["Cake"] = "FoodCakePink",
+        ["Egg"] = "FoodDippyEgg",
+        ["Bread"] = "FoodBread",
+        ["Mayonnaise"] = "FoodMayonnaise",
+    }
+
+    local SelectedInputToy = "CupMugWhite"
+
+    local InputDropdownValues = {}
+    for name, _ in pairs(InputToyList) do
+        table.insert(InputDropdownValues, name)
+    end
+    table.sort(InputDropdownValues)
+
+    AntiInputBlock:CreateDropdown({
+        Name = "Select Item",
+        Items = InputDropdownValues,
+        Default = "White Mug",
+        Callback = function(Value)
+            SelectedInputToy = InputToyList[Value] or "CupMugWhite"
+            Library:Notify({ Title = "Anti-Input", Content = "Selected: " .. Value, Duration = 2 })
+        end
+    })
+
+    AntiInputBlock:CreateSlider({
+        Name = "Cycle Speed (0.02 - 0.5 sec)",
+        Min = 0.02,
+        Max = 0.5,
+        Default = 0.1,
+        Rounding = 2,
+        Suffix = "sec",
+        Callback = function(Value)
+            antiInputSpeed = Value
+            Library:Notify({ Title = "Anti-Input", Content = "Speed: " .. string.format("%.2f", Value) .. " sec", Duration = 2 })
+        end
+    })
+
+    local function StartAntiInput()
+        if antiInputTask then task.cancel(antiInputTask) end
+        antiInputTask = task.spawn(function()
+            local RS = ReplicatedStorage
+            local SpawnRemote = RS:WaitForChild("MenuToys"):WaitForChild("SpawnToyRemoteFunction")
+            local HoldDuration = 0.02
+
+            while antiInputActive do
+                local char = LocalPlayer.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                
+                if hrp then
+                    local toysFolder = workspace:FindFirstChild(LocalPlayer.Name .. "SpawnedInToys")
+                    local name = SelectedInputToy
+                    local item = toysFolder and toysFolder:FindFirstChild(name)
+
+                    for _, obj in pairs(Workspace:GetChildren()) do
+                        if obj.Name == "Shuriken" and obj:IsA("Model") then
+                            for _, part in pairs(obj:GetDescendants()) do
+                                if part:IsA("BasePart") then 
+                                    part.CanCollide = false 
+                                    part.Massless = true 
+                                end
+                            end
+                        end
+                    end
+
+                    if not item or not item.Parent then
+                        task.spawn(function()
+                            pcall(function()
+                                SpawnRemote:InvokeServer(name, hrp.CFrame * CFrame.new(0, -12, 0), Vector3.zero)
+                            end)
+                        end)
+                        task.wait(0.1)
+                    else
+                        local holdPart = item:FindFirstChild("HoldPart")
+                        if holdPart then
+                            for _, v in pairs(item:GetDescendants()) do
+                                if v:IsA("BasePart") then 
+                                    v.CanCollide = false 
+                                    v.Massless = true 
+                                end
+                            end
+
+                            task.spawn(function()
+                                pcall(function()
+                                    holdPart.HoldItemRemoteFunction:InvokeServer(item, char)
+                                end)
+                            end)
+
+                            task.wait(HoldDuration)
+
+                            task.spawn(function()
+                                pcall(function()
+                                    holdPart.DropItemRemoteFunction:InvokeServer(
+                                        item, 
+                                        CFrame.new(0, 5000, 0), 
+                                        Vector3.zero
+                                    )
+                                end)
+                            end)
+                        end
+                    end
+                end
+                task.wait(antiInputSpeed)
+            end
+        end)
+    end
+
+    local function StopAntiInput()
+        antiInputActive = false
+        if antiInputTask then 
+            task.cancel(antiInputTask) 
+            antiInputTask = nil 
+        end
+        
+        task.spawn(function()
+            local inv = Workspace:FindFirstChild(LocalPlayer.Name .. "SpawnedInToys")
+            local destroyToy = RS:FindFirstChild("MenuToys") and RS.MenuToys:FindFirstChild("DestroyToy")
+            if inv and destroyToy then
+                for _, v in pairs(inv:GetChildren()) do 
+                    if v.Name == SelectedInputToy then 
+                        pcall(function() destroyToy:FireServer(v) end)
+                    end
+                end
+            end
+        end)
+    end
+
+    AntiInputBlock:CreateToggle({
+        Name = "Anti-Input (Protection from input lag)",
+        Default = false,
+        Callback = function(Value)
+            antiInputActive = Value
+            if Value then 
+                StartAntiInput() 
+                Library:Notify({ Title = "Anti-Input", Content = "Enabled (Speed: " .. string.format("%.2f", antiInputSpeed) .. " sec)", Duration = 2 })
+            else 
+                StopAntiInput() 
+                Library:Notify({ Title = "Anti-Input", Content = "Disabled", Duration = 2 })
+            end
+        end
+    })
 
     local GrabEvents = RS:WaitForChild("GrabEvents")
     local SetNetworkOwner = GrabEvents:WaitForChild("SetNetworkOwner")
@@ -107,7 +267,6 @@ function StartMainScript(titleText)
     local kickTask = nil
     local holdHeight = 17
     local fovEnabled = false
-    local thirdPersonEnabled = false
     local originalFOV = 70
 
     local isAntiKickActive = false
@@ -118,6 +277,12 @@ function StartMainScript(titleText)
     local antiBurnConnection = nil
     local antiGrabEnabled = false
     local antiGrabTask = nil
+
+    local blobmanKickActive = false
+    local blobmanKickTask = nil
+    local blobmanTarget = nil
+    local blobmanGrabInterval = 0.001
+    local blobmanHoldHeight = 15
 
     local ownershipRagdollActive = false
     local ownershipRagdollTask = nil
@@ -321,6 +486,44 @@ function StartMainScript(titleText)
         end
     })
 
+    local BlobmanTargetDropdown = BlodmanMainBlock:CreateDropdown({
+        Name = "Select Target",
+        Options = targetNames,
+        Callback = function(v)
+            blobmanTarget = getPlayerFromSelection(v)
+        end
+    })
+
+    BlodmanMainBlock:CreateButton({
+        Name = "Refresh List",
+        Callback = function()
+            updateList()
+            BlobmanTargetDropdown:Refresh(targetNames, true)
+        end
+    })
+
+    BlodmanSettingsBlock:CreateSlider({
+        Name = "Blodman Interval (0.001 - 0.05)",
+        Min = 0.001,
+        Max = 0.05,
+        Default = 0.001,
+        Rounding = 3,
+        Callback = function(Value)
+            blobmanGrabInterval = Value
+        end
+    })
+
+    BlodmanSettingsBlock:CreateSlider({
+        Name = "Hold Height",
+        Min = 5,
+        Max = 40,
+        Default = 15,
+        Rounding = 0,
+        Callback = function(Value)
+            blobmanHoldHeight = Value
+        end
+    })
+
     local function cleanupBodies()
         pcall(function()
             if bodyPos then bodyPos:Destroy() bodyPos = nil end
@@ -360,6 +563,133 @@ function StartMainScript(titleText)
             RunService.Heartbeat:Wait()
         end
     end
+
+    local function BlodmanKickLoop()
+        local target = blobmanTarget
+        if not target then return end
+
+        local GE = RS:WaitForChild("GrabEvents")
+        local myChar = LocalPlayer.Character
+        local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+        if not myRoot then return end
+
+        local savedPos = myRoot.CFrame
+        local currentHoldHeight = blobmanHoldHeight
+        local dragging = false
+        local grabStartTime = 0
+        local spamCounter = 0
+
+        while blobmanKickActive do
+            local currentTarget = Players:FindFirstChild(target.Name)
+            if not currentTarget or not currentTarget.Parent then break end
+
+            myChar = LocalPlayer.Character
+            myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+            local tChar = currentTarget.Character
+            local tRoot = tChar and tChar:FindFirstChild("HumanoidRootPart")
+            local tHum = tChar and tChar:FindFirstChild("Humanoid")
+
+            local seat = myChar and myChar.Humanoid and myChar.Humanoid.SeatPart
+
+            if tRoot and tHum and tHum.Health > 0 and myRoot and seat then
+                tRoot.AssemblyLinearVelocity = Vector3.zero
+                tRoot.Velocity = Vector3.zero
+
+                local blobman = seat.Parent
+                local remoteFolder = blobman:FindFirstChild("BlobmanSeatAndOwnerScript")
+                
+                if remoteFolder then
+                    local grab = remoteFolder:FindFirstChild("CreatureGrab")
+                    local release = remoteFolder:FindFirstChild("CreatureRelease")
+                    
+                    local R_Det = blobman:FindFirstChild("RightDetector")
+                    local R_Weld = R_Det and (R_Det:FindFirstChild("RightWeld") or R_Det:FindFirstChild("RigidConstraint"))
+
+                    if grab and release and R_Weld then
+                        
+                        if not dragging then
+                            myRoot.CFrame = tRoot.CFrame
+                            if GE then
+                                pcall(function()
+                                    tHum.PlatformStand = true
+                                    GE.SetNetworkOwner:FireServer(tRoot, myRoot.CFrame)
+                                    GE.CreateGrabLine:FireServer(tRoot, Vector3.zero, tRoot.Position, false)
+                                end)
+                            end
+                            
+                            if grabStartTime == 0 then grabStartTime = tick() end
+                            if tick() - grabStartTime > 0.3 then
+                                dragging = true
+                                grabStartTime = 0
+                            end
+                        else
+                            local lockPos = savedPos * CFrame.new(0, currentHoldHeight, 0)
+                            myRoot.CFrame = savedPos
+                            tRoot.CFrame = lockPos
+                            
+                            spamCounter = spamCounter + 1
+                            
+                            pcall(function()
+                                grab:FireServer(R_Det, tRoot, R_Weld)
+                            end)
+                            
+                            if spamCounter % 2 == 0 then
+                                pcall(function()
+                                    release:FireServer(R_Weld)
+                                end)
+                            end
+                            
+                            if GE then
+                                pcall(function()
+                                    tHum.PlatformStand = true
+                                    GE.SetNetworkOwner:FireServer(tRoot, lockPos)
+                                    GE.DestroyGrabLine:FireServer(tRoot)
+                                    GE.CreateGrabLine:FireServer(tRoot, Vector3.zero, tRoot.Position, false)
+                                end)
+                            end
+                        end
+                    end
+                end
+            else
+                dragging = false
+                grabStartTime = 0
+                spamCounter = 0
+                task.wait(0.1)
+            end
+            
+            task.wait(blobmanGrabInterval)
+        end
+
+        if myRoot then
+            myRoot.CFrame = savedPos
+        end
+        blobmanKickActive = false
+    end
+
+    BlodmanMainBlock:CreateToggle({
+        Name = "BLODMAN KICK",
+        Default = false,
+        Callback = function(Value)
+            blobmanKickActive = Value
+            if blobmanKickTask then task.cancel(blobmanKickTask) blobmanKickTask = nil end
+            if Value then
+                if not blobmanTarget then
+                    Library:Notify({ Title = "Error", Content = "Select target first", Duration = 3 })
+                    return
+                end
+                local char = LocalPlayer.Character
+                local hum = char and char:FindFirstChild("Humanoid")
+                if not hum or not hum.SeatPart then
+                    Library:Notify({ Title = "Error", Content = "Sit on Blobman", Duration = 3 })
+                    return
+                end
+                blobmanKickTask = task.spawn(BlodmanKickLoop)
+                Library:Notify({ Title = "BLODMAN KICK", Content = "Enabled", Duration = 2 })
+            else
+                Library:Notify({ Title = "BLODMAN KICK", Content = "Disabled", Duration = 2 })
+            end
+        end
+    })
 
     local function ClearShuriken()
         local inv = Workspace:FindFirstChild(LocalPlayer.Name .. "SpawnedInToys")
@@ -515,22 +845,14 @@ function StartMainScript(titleText)
     end
 
     local function SetThirdPerson(enabled)
-        local player = LocalPlayer
         if enabled then
-            player.CameraMode = Enum.CameraMode.Classic
-            player.CameraMinZoomDistance = 10
-            player.CameraMaxZoomDistance = 15
+            LocalPlayer.CameraMode = Enum.CameraMode.Classic
+            LocalPlayer.CameraMaxZoomDistance = 1000
+            LocalPlayer.CameraMinZoomDistance = 0.5
         else
-            player.CameraMode = Enum.CameraMode.LockFirstPerson
-            player.CameraMinZoomDistance = 0.5
-            player.CameraMaxZoomDistance = 0.5
-        end
-        local char = player.Character
-        if char then
-            local hum = char:FindFirstChildOfClass("Humanoid")
-            if hum then
-                Workspace.CurrentCamera.CameraSubject = hum
-            end
+            LocalPlayer.CameraMode = Enum.CameraMode.LockFirstPerson
+            LocalPlayer.CameraMaxZoomDistance = 0.5
+            LocalPlayer.CameraMinZoomDistance = 0.5
         end
     end
 
@@ -547,7 +869,6 @@ function StartMainScript(titleText)
         Name = "Third Person",
         Default = false,
         Callback = function(Value)
-            thirdPersonEnabled = Value
             SetThirdPerson(Value)
         end
     })
@@ -556,7 +877,6 @@ function StartMainScript(titleText)
         task.wait(0.5)
         if antiGrabEnabled then antiGrabTask = task.spawn(AntiGrabLoop) end
         if fovEnabled then SetFOV(true) end
-        if thirdPersonEnabled then SetThirdPerson(true) end
         if infiniteRagdoll then infiniteRagdollTask = task.spawn(InfiniteRagdollLoop) end
     end)
 
@@ -726,9 +1046,6 @@ function StartMainScript(titleText)
         end
     })
 
-    -- ============================================================
-    -- OWNERSHIP KICK
-    -- ============================================================
     local function OwnershipKickFunction(targetName)
         local target = Players:FindFirstChild(targetName)
         if not target then return end
@@ -903,9 +1220,6 @@ function StartMainScript(titleText)
         end
     })
 
-    -- ============================================================
-    -- PALLET RAGDOLL
-    -- ============================================================
     local function PalletRagdollFunction(targetName)
         local target = Players:FindFirstChild(targetName)
         if not target or not target.Character then return end
@@ -1016,6 +1330,9 @@ function StartMainScript(titleText)
             if TargetDropdown then
                 pcall(function() TargetDropdown:Refresh(targetNames, true) end)
             end
+            if BlobmanTargetDropdown then
+                pcall(function() BlobmanTargetDropdown:Refresh(targetNames, true) end)
+            end
             task.wait(5)
         end
     end)
@@ -1029,7 +1346,6 @@ function StartMainScript(titleText)
         antiGrabEnabled = false
         if antiGrabTask then task.cancel(antiGrabTask) antiGrabTask = nil end
         if fovEnabled then SetFOV(false) fovEnabled = false end
-        if thirdPersonEnabled then SetThirdPerson(false) thirdPersonEnabled = false end
         if isAntiKickActive then
             isAntiKickActive = false
             if antiKickTask then task.cancel(antiKickTask) antiKickTask = nil end
@@ -1041,6 +1357,8 @@ function StartMainScript(titleText)
         end
         infiniteRagdoll = false
         if infiniteRagdollTask then task.cancel(infiniteRagdollTask) infiniteRagdollTask = nil end
+        blobmanKickActive = false
+        if blobmanKickTask then task.cancel(blobmanKickTask) blobmanKickTask = nil end
         StopAutoAntiLag()
         
         task.spawn(function()
