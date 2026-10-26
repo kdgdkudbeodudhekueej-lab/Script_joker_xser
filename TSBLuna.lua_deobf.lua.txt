@@ -1,0 +1,1428 @@
+-- [[ @ dsc.gg/6vms | by leakd cuhh ]]
+-- Dеоbfuѕсаtеԁ Ѕuссеsѕfullу Ву LеаκD
+-- https://leakd.vercel.app
+
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local userInputService = game:GetService("UserInputService")
+local workspaceService = game:GetService("Workspace")
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local starterGui = game:GetService("StarterGui")
+game:IsLoaded()
+local v1
+
+repeat
+  wait()
+  v1 = game
+until v1:IsLoaded()
+
+local luna = loadstring(game:HttpGet("https://raw.nebulasoftworks.xyz/luna", true))()
+
+local window = luna:CreateWindow({
+  Name = "The Strongest Battlegrounds",
+  Subtitle = "By Emerson",
+  LogoID = "82795327169782",
+  LoadingEnabled = true,
+  LoadingTitle = "TSB Script",
+  LoadingSubtitle = "| By Emerson",
+  ConfigSettings = { RootFolder = nil, ConfigFolder = "TSB" },
+  KeySystem = false,
+  KeySettings = {
+    Title = "Luna Example Key",
+    Subtitle = "Key System",
+    Note = "Best Key System Ever! Also, Please Use A HWID Keysystem like Pelican, Luarmor etc. that provide key strings based on your HWID since putting a simple string is very easy to bypass",
+    SaveInRoot = false,
+    SaveKey = true,
+    Key = { "Example Key" },
+    SecondAction = { Enabled = true, Type = "Link", Parameter = "" },
+  },
+})
+
+local localPlayer = players.LocalPlayer
+local name = localPlayer.Name
+local userId = localPlayer.UserId
+local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+local function f1()
+  if workspaceService:GetAttribute("VIPServer") ~= tostring(userId) then
+    workspaceService:SetAttribute("VIPServer", tostring(userId))
+  end
+
+  if workspaceService:GetAttribute("VIPServerOwner") ~= name then
+    workspaceService:SetAttribute("VIPServerOwner", name)
+  end
+
+  if localPlayer:GetAttribute("ExtraSlots") == nil then
+    localPlayer:SetAttribute("ExtraSlots", false)
+  end
+
+  if localPlayer:GetAttribute("EmoteSearchBar") == nil then
+    localPlayer:SetAttribute("EmoteSearchBar", false)
+  end
+
+  if workspaceService:GetAttribute("NoDashCooldown") == nil then
+    workspaceService:SetAttribute("NoDashCooldown", false)
+  end
+
+  if workspaceService:GetAttribute("NoFatigue") == nil then
+    workspaceService:SetAttribute("NoFatigue", false)
+  end
+end
+
+f1()
+
+window:CreateHomeTab({
+  SupportedExecutors = {
+    "Xeno", "Krnl", "Solara", "Velocity", "Wave", "Delta", "Arceus", "Ronix", "Swift", "Cloudy",
+  },
+  DiscordInvite = "nil",
+  Icon = 1,
+})
+
+local mainTab = window:CreateTab({
+  Name = "Main",
+  Icon = "view_in_ar",
+  ImageSource = "Material",
+  ShowTitle = false,
+})
+
+local walkSpeed = 25
+
+local label = mainTab:CreateLabel({
+  Text = "Current WalkSpeed: " .. tostring(humanoid.WalkSpeed),
+  Style = 2,
+})
+
+local function f2()
+  label:Set("Current WalkSpeed: " .. tostring(humanoid.WalkSpeed))
+end
+
+f2()
+
+local connect = humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(f2)
+local connect2
+
+mainTab:CreateToggle({
+  Name = "Loop WalkSpeed",
+  Description = "Keep WalkSpeed at the slider value",
+  CurrentValue = false,
+  Callback = function(value)
+    if value then
+      if connect2 then
+        connect2:Disconnect()
+      end
+
+      connect2 = runService.Heartbeat:Connect(function() humanoid.WalkSpeed = walkSpeed end)
+    else
+      if connect2 then
+        connect2:Disconnect()
+      end
+
+      humanoid.WalkSpeed = 25
+    end
+  end,
+}, "LoopWalkSpeedToggle")
+
+mainTab:CreateSlider({
+  Name = "Loop WalkSpeed",
+  Range = { 0, 200 },
+  Increment = 1,
+  CurrentValue = humanoid.WalkSpeed,
+  Callback = function(value2) walkSpeed = value2 end,
+}, "LoopWalkSpeedSlider")
+
+mainTab:CreateDivider()
+
+local cframeSpeed = 0.1
+local connect3
+
+mainTab:CreateToggle({
+  Name = "CFrame Speed",
+  Description = "Move using CFrame instead of Humanoid WalkSpeed",
+  CurrentValue = false,
+  Callback = function(value3)
+    if value3 then
+      if connect3 then
+        connect3:Disconnect()
+      end
+
+      connect3 = runService.Heartbeat:Connect(function()
+        if humanoid.MoveDirection.Magnitude > 0 then
+          character:TranslateBy(humanoid.MoveDirection * cframeSpeed)
+        else
+          character:TranslateBy(humanoid.MoveDirection)
+        end
+      end)
+    elseif connect3 then
+      connect3:Disconnect()
+    end
+  end,
+}, "CFrameSpeedToggle")
+
+mainTab:CreateSlider({
+  Name = "CFrame Speed",
+  Range = { 0, 10 },
+  Increment = 0.01,
+  CurrentValue = 0.1,
+  Callback = function(value4) cframeSpeed = value4 end,
+}, "CFrameSpeedSlider")
+
+mainTab:CreateDivider()
+
+local jumpPower = 50
+
+local label2 = mainTab:CreateLabel({
+  Text = "Current JumpPower: " .. tostring(humanoid.JumpPower),
+  Style = 2,
+})
+
+local label3 = mainTab:CreateLabel({
+  Text = "Using JumpPower: " .. tostring(humanoid.UseJumpPower),
+  Style = 2,
+})
+
+local function f3()
+  label3:Set("Using JumpPower: " .. tostring(humanoid.UseJumpPower))
+end
+
+f3()
+
+local connect4 = humanoid:GetPropertyChangedSignal("UseJumpPower"):Connect(f3)
+
+local function f4()
+  label2:Set("Current JumpPower: " .. tostring(humanoid.JumpPower))
+end
+
+f4()
+
+local connect5 = humanoid:GetPropertyChangedSignal("JumpPower"):Connect(f4)
+local connect6
+
+mainTab:CreateToggle({
+  Name = "Loop JumpPower",
+  Description = "Keep JumpPower at the slider value",
+  CurrentValue = false,
+  Callback = function(value5)
+    if value5 then
+      if connect6 then
+        connect6:Disconnect()
+      end
+
+      connect6 = runService.Heartbeat:Connect(function() humanoid.JumpPower = jumpPower end)
+    else
+      if connect6 then
+        connect6:Disconnect()
+      end
+
+      humanoid.JumpPower = 50
+    end
+  end,
+}, "LoopJumpPowerToggle")
+
+mainTab:CreateSlider({
+  Name = "Loop JumpPower",
+  Range = { 0, 1000 },
+  Increment = 1,
+  CurrentValue = humanoid.JumpPower,
+  Callback = function(value6) jumpPower = value6 end,
+}, "LoopJumpPowerSlider")
+
+local v2 = false
+local connect7
+
+mainTab:CreateToggle({
+  Name = "Infinite Jump",
+  Description = "Allows you to jump infinitely",
+  CurrentValue = false,
+  Callback = function(value7)
+    if value7 then
+      if connect7 then
+        connect7:Disconnect()
+      end
+
+      v2 = false
+
+      connect7 = userInputService.JumpRequest:Connect(function()
+        if not v2 then
+          v2 = true
+          humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+          task.wait()
+          v2 = false
+        end
+      end)
+    elseif connect7 then
+      connect7:Disconnect()
+    end
+  end,
+}, "InfJumpToggle")
+
+mainTab:CreateDivider()
+
+local label4 = mainTab:CreateLabel({
+  Text = "Current JumpHeight: " .. tostring(math.floor(humanoid.JumpHeight * 10 + 0.5) / 10),
+  Style = 2,
+})
+
+local function f5()
+  label4:Set("Current JumpHeight: " .. tostring(math.floor(humanoid.JumpHeight * 10 + 0.5) / 10))
+end
+
+f5()
+
+local connect8 = humanoid:GetPropertyChangedSignal("JumpHeight"):Connect(f5)
+local v3 = not humanoid.UseJumpPower
+
+mainTab:CreateToggle({
+  Name = "Use JumpHeight",
+  Description = "use jump height instead of jump power (UsingJumpPower = false)",
+  CurrentValue = not humanoid.UseJumpPower,
+  Callback = function(value8)
+    humanoid.UseJumpPower = not value8
+    v3 = value8
+  end,
+}, "UsingJumpHeightButton")
+
+local jumpHeight = 0
+
+mainTab:CreateSlider({
+  Name = "JumpHeight",
+  Range = { 0, 500 },
+  Increment = 1,
+  CurrentValue = math.floor(humanoid.JumpHeight * 10 + 0.5) / 10,
+  Callback = function(value9)
+    jumpHeight = value9
+    humanoid.JumpHeight = value9
+  end,
+}, "JumpHeightSlider")
+
+mainTab:CreateDivider()
+
+local gravity = workspace.Gravity
+
+local label5 = mainTab:CreateLabel({
+  Text = "Current Gravity: " .. tostring(math.floor(workspace.Gravity * 10 + 0.5) / 10),
+  Style = 2,
+})
+
+local function f6()
+  label5:Set("Current Gravity: " .. tostring(math.floor(workspace.Gravity * 10 + 0.5) / 10))
+end
+
+f6()
+
+local connect9 = workspace:GetPropertyChangedSignal("Gravity"):Connect(f6)
+
+mainTab:CreateSlider({
+  Name = "Gravity",
+  Range = { 0, 1000 },
+  Increment = 0.1,
+  CurrentValue = math.floor(workspace.Gravity * 10 + 0.5) / 10,
+  Callback = function(value10) workspace.Gravity = value10 end,
+}, "GravitySlider")
+
+mainTab:CreateButton({
+  Name = "Default Gravity",
+  Description = "Default Gravity",
+  Callback = function() workspace.Gravity = gravity end,
+})
+
+mainTab:CreateDivider()
+
+local label6 = mainTab:CreateLabel({
+  Text = "Current Camera FOV: " .. tostring(workspace.CurrentCamera.FieldOfView),
+  Style = 2,
+})
+
+local function f7()
+  label6:Set("Current Camera FOV: " .. tostring(workspace.CurrentCamera.FieldOfView))
+end
+
+f7()
+
+local connect10 = workspace.CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(f7)
+
+mainTab:CreateSlider({
+  Name = "Camera FOV",
+  Range = { 1, 120 },
+  Increment = 1,
+  CurrentValue = workspace.CurrentCamera.FieldOfView,
+  Callback = function(value11) workspace.CurrentCamera.FieldOfView = value11 end,
+}, "FOVSlider")
+
+mainTab:CreateDivider()
+
+local hipHeight = humanoid.HipHeight
+
+local label7 = mainTab:CreateLabel({
+  Text = "Current HipHeight: " .. tostring(math.floor(humanoid.HipHeight * 10 + 0.5) / 10),
+  Style = 2,
+})
+
+local function f8()
+  label7:Set("Current HipHeight: " .. tostring(math.floor(humanoid.HipHeight * 10 + 0.5) / 10))
+end
+
+f8()
+
+local connect11 = humanoid:GetPropertyChangedSignal("HipHeight"):Connect(f8)
+
+mainTab:CreateSlider({
+  Name = "Hip Height",
+  Range = { 0, 500 },
+  Increment = 0.1,
+  CurrentValue = hipHeight,
+  Callback = function(value12)
+    hipHeight = value12
+    humanoid.HipHeight = value12
+  end,
+}, "HipHeightSlider")
+
+local exploitsTab = window:CreateTab({
+  Name = "Exploits",
+  Icon = "dangerous",
+  ImageSource = "Material",
+  ShowTitle = false,
+})
+
+exploitsTab:CreateLabel({ Text = "Exploits", Style = 1 })
+
+local noDashCooldown = workspaceService:GetAttribute("NoDashCooldown")
+
+local function f9(p1, p2)
+  if humanoid then
+    local animator = humanoid:FindFirstChildWhichIsA("Animator")
+
+    if animator then
+      for index, value13 in ipairs(animator:GetPlayingAnimationTracks()) do
+        if value13.Animation
+          and value13.Animation.AnimationId == "rbxassetid://" .. tostring(p2) then
+          return true
+        end
+      end
+
+      return false
+    end
+
+    return false
+  end
+
+  return false
+end
+
+local function f10(p3, p4)
+  if humanoid then
+    local animator2 = humanoid:FindFirstChildWhichIsA("Animator")
+
+    if animator2 then
+      for index2, value14 in ipairs(animator2:GetPlayingAnimationTracks()) do
+        if value14.Animation
+          and value14.Animation.AnimationId == "rbxassetid://" .. tostring(p4) then
+          value14:Stop()
+        end
+      end
+    end
+  end
+end
+
+exploitsTab:CreateToggle({
+  Name = "No Dash Cooldown",
+  Description = "Removes dash cooldown",
+  CurrentValue = noDashCooldown,
+  Callback = function(value15) workspaceService:SetAttribute("NoDashCooldown", value15) end,
+}, "NoDashCooldownToggle")
+
+local v4 = false
+
+local function f11(p5)
+  userInputService.InputBegan:Connect(function(input, p6)
+    if p6 then
+      return
+    elseif not v4 then
+      return
+    else
+      if input.KeyCode == Enum.KeyCode.Q and not userInputService:IsKeyDown(Enum.KeyCode.W)
+        and not userInputService:IsKeyDown(Enum.KeyCode.S) and not f9(p5, 10491993682) then
+        local dodgevelocity = humanoidRootPart:FindFirstChild("dodgevelocity")
+
+        if dodgevelocity then
+          dodgevelocity:Destroy()
+          f10(p5, 10480793962)
+          f10(p5, 10480796021)
+        end
+      end
+
+      return
+    end
+  end)
+end
+
+f11(character)
+
+exploitsTab:CreateToggle({
+  Name = "no dash endlag",
+  Description = "",
+  CurrentValue = v4,
+  Callback = function(value16) v4 = value16 end,
+}, "DashEmoteToggle")
+
+exploitsTab:CreateToggle({
+  Name = "No Fatigue",
+  Description = "Removes fatigue",
+  CurrentValue = workspaceService:GetAttribute("NoFatigue"),
+  Callback = function(value17) workspaceService:SetAttribute("NoFatigue", value17) end,
+}, "NoFatigueToggle")
+
+exploitsTab:CreateDivider()
+
+exploitsTab:CreateToggle({
+  Name = "Extra Slots",
+  Description = "Extra emote slots",
+  CurrentValue = localPlayer:GetAttribute("ExtraSlots"),
+  Callback = function(value18) localPlayer:SetAttribute("ExtraSlots", value18) end,
+}, "ExtraSlotsToggle")
+
+exploitsTab:CreateToggle({
+  Name = "Emote Search Bar",
+  Description = "Unlock emote search bar",
+  CurrentValue = localPlayer:GetAttribute("EmoteSearchBar"),
+  Callback = function(value19) localPlayer:SetAttribute("EmoteSearchBar", value19) end,
+}, "EmoteSearchBarToggle")
+
+exploitsTab:CreateDivider()
+
+local connect12
+
+exploitsTab:CreateToggle({
+  Name = "No Ragdoll",
+  Description = "Prevents ragdolling",
+  CurrentValue = false,
+  Callback = function(value20)
+    if value20 then
+      if connect12 then
+        connect12:Disconnect()
+      end
+
+      connect12 = runService.Heartbeat:Connect(function()
+        local v5 = character
+        local v6 = character
+        local ragdoll = v5:FindFirstChild("Ragdoll")
+        local ragdollSim = v6:FindFirstChild("RagdollSim")
+
+        if ragdoll then
+          ragdoll:Destroy()
+        end
+
+        if ragdollSim then
+          ragdollSim:Destroy()
+        end
+      end)
+    elseif connect12 then
+      connect12:Disconnect()
+    end
+  end,
+}, "NoRagdollToggle")
+
+local connect13
+
+exploitsTab:CreateToggle({
+  Name = "No Freeze",
+  Description = "character won't be frozen",
+  CurrentValue = false,
+  Callback = function(value21)
+    if value21 then
+      if connect13 then
+        connect13:Disconnect()
+      end
+
+      connect13 = runService.Heartbeat:Connect(function()
+        local freeze = character:FindFirstChild("Freeze")
+
+        if freeze then
+          freeze:Destroy()
+        end
+      end)
+    elseif connect13 then
+      connect13:Disconnect()
+    end
+  end,
+}, "NoFreezeToggle")
+
+local connect14
+
+exploitsTab:CreateToggle({
+  Name = "No Rotate Bypass",
+  Description = "forces character to be able to rotate",
+  CurrentValue = false,
+  Callback = function(value22)
+    if value22 then
+      if connect14 then
+        connect14:Disconnect()
+      end
+
+      connect14 = runService.Heartbeat:Connect(function()
+        local noRotate = character:FindFirstChild("NoRotate")
+
+        if noRotate then
+          noRotate:Destroy()
+        end
+      end)
+    elseif connect14 then
+      connect14:Disconnect()
+    end
+  end,
+}, "NoRotateBypassToggle")
+
+local connect15
+
+exploitsTab:CreateToggle({
+  Name = "No Slow",
+  Description = "character won't be slowed in some situations",
+  CurrentValue = false,
+  Callback = function(value23)
+    if value23 then
+      if connect15 then
+        connect15:Disconnect()
+      end
+
+      connect15 = runService.Heartbeat:Connect(function()
+        local slowed = character:FindFirstChild("Slowed")
+
+        if slowed then
+          slowed:Destroy()
+        end
+      end)
+    elseif connect15 then
+      connect15:Disconnect()
+    end
+  end,
+}, "NoSlowToggle")
+
+local connect16
+
+exploitsTab:CreateToggle({
+  Name = "No Stop Running",
+  Description = "character won't stop running in some situations",
+  CurrentValue = false,
+  Callback = function(value24)
+    if value24 then
+      if connect16 then
+        connect16:Disconnect()
+      end
+
+      connect16 = runService.Heartbeat:Connect(function()
+        local stopRunning = character:FindFirstChild("StopRunning")
+
+        if stopRunning then
+          stopRunning:Destroy()
+        end
+      end)
+    elseif connect16 then
+      connect16:Disconnect()
+    end
+  end,
+}, "NoStopRunningToggle")
+
+local connect17
+
+exploitsTab:CreateToggle({
+  Name = "No Jump Bypass",
+  Description = "forces character to be able to jump in some situations",
+  CurrentValue = false,
+  Callback = function(value25)
+    if value25 then
+      if connect17 then
+        connect17:Disconnect()
+      end
+
+      connect17 = runService.Heartbeat:Connect(function()
+        local noJump = character:FindFirstChild("NoJump")
+
+        if noJump then
+          noJump:Destroy()
+        end
+      end)
+    elseif connect17 then
+      connect17:Disconnect()
+    end
+  end,
+}, "NoJumpBypassToggle")
+
+exploitsTab:CreateToggle({
+  Name = "No Block SlowDown",
+  Description = "character won't be slowed when blocking",
+  CurrentValue = false,
+  Callback = function(value26)
+    if value26 then
+      if NoBlockSlowConn then
+        NoBlockSlowConn:Disconnect()
+      end
+
+      NoBlockSlowConn = runService.Heartbeat:Connect(function()
+        if character:GetAttribute("Blocking") then
+          if character:GetAttribute("Blocking") == true then
+            character:SetAttribute("Blocking", false)
+          end
+        end
+      end)
+    elseif NoBlockSlowConn then
+      NoBlockSlowConn:Disconnect()
+    end
+  end,
+}, "NoBlockSlowToggle")
+
+local connect18
+
+exploitsTab:CreateToggle({
+  Name = "No Block Animation",
+  Description = "character won't play block animation",
+  CurrentValue = false,
+  Callback = function(value27)
+    if value27 then
+      if connect18 then
+        connect18:Disconnect()
+      end
+
+      connect18 = runService.Heartbeat:Connect(function()
+        if f9(character, 10470389827) then
+          f10(character, 10470389827)
+        end
+      end)
+    elseif connect18 then
+      connect18:Disconnect()
+    end
+  end,
+}, "NoBlockAnimationToggle")
+
+local teleportTab = window:CreateTab({
+  Name = "Teleport",
+  Icon = "my_location",
+  ImageSource = "Material",
+  ShowTitle = false,
+})
+
+teleportTab:CreateLabel({ Text = "Teleport", Style = 1 })
+
+local v7 = {
+  ["Atomic Room"] = CFrame.new(1079, 155, 23003),
+  ["Death Counter Room"] = CFrame.new(-92, 29, 20347),
+  Baseplate = CFrame.new(968, 20, 23088),
+  ["Middle of Map"] = CFrame.new(148, 441, 27),
+  ["Mountain 1"] = CFrame.new(266, 699, 458),
+  ["Mountain 2"] = CFrame.new(551, 630, -265),
+  ["Mountain 3"] = CFrame.new(-107, 642, -328),
+}
+
+-- https://leakd.vercel.app
+local cframe
+
+teleportTab:CreateButton({
+  Name = "Save Position (Clipboard)",
+  Description = "Save your current position",
+  Callback = function()
+    cframe = humanoidRootPart.CFrame
+
+    luna:Notification({
+      Title = "Position Saved",
+      Icon = "notifications_active",
+      ImageSource = "Material",
+      Content = "position saved successfully" .. tostring(math.floor(cframe.X * 10 + 0.5) / 10)
+        .. ", " .. tostring(math.floor(cframe.Y * 10 + 0.5) / 10) .. ", "
+        .. tostring(math.floor(cframe.Z * 10 + 0.5) / 10),
+    })
+
+    pcall(function()
+      setclipboard(tostring(math.floor(cframe.X * 10 + 0.5) / 10) .. ", "
+        .. tostring(math.floor(cframe.Y * 10 + 0.5) / 10) .. ", "
+        .. tostring(math.floor(cframe.Z * 10 + 0.5) / 10))
+    end)
+  end,
+})
+
+teleportTab:CreateButton({
+  Name = "Teleport to Saved Position",
+  Description = "Teleport to your saved position",
+  Callback = function()
+    if cframe then
+      humanoidRootPart.CFrame = cframe
+    else
+      luna:Notification({
+        Title = "Error",
+        Icon = "notifications_active",
+        ImageSource = "Material",
+        Content = "No position saved",
+      })
+    end
+  end,
+})
+
+teleportTab:CreateDivider()
+
+local function f12()
+  for key, value28 in pairs(v7) do
+    local cframe2 = value28
+
+    teleportTab:CreateButton({
+      Name = key,
+      Description = "Teleport to " .. key,
+      Callback = function() humanoidRootPart.CFrame = cframe2 end,
+    })
+  end
+end
+
+f12()
+
+local trollFunTab = window:CreateTab({
+  Name = "Troll / Fun",
+  Icon = "code",
+  ImageSource = "Material",
+  ShowTitle = false,
+})
+
+trollFunTab:CreateLabel({ Text = "Troll / Fun", Style = 1 })
+
+local v8 = false
+
+local function f13()
+  local v9 = 0.1
+
+  while v8 do
+    runService.Heartbeat:Wait()
+    local character2 = localPlayer.Character
+    local humanoidRootPart2 = character2 and character2:FindFirstChild("HumanoidRootPart")
+
+    if humanoidRootPart2 then
+      local velocity = humanoidRootPart2.Velocity
+      humanoidRootPart2.Velocity = velocity * 10000 + Vector3.new(0, 10000, 0)
+      runService.RenderStepped:Wait()
+      humanoidRootPart2.Velocity = velocity
+      runService.Stepped:Wait()
+      humanoidRootPart2.Velocity = velocity + Vector3.new(0, v9, 0)
+      v9 = -v9
+    end
+  end
+end
+
+local function f14()
+  if not replicatedStorage:FindFirstChild("TouchFlingMarker") then
+    local touchFlingMarker = Instance.new("Folder")
+    touchFlingMarker.Name = "TouchFlingMarker"
+    touchFlingMarker.Parent = replicatedStorage
+  end
+end
+
+f14()
+
+local v10
+
+trollFunTab:CreateToggle({
+  Name = "Touch Fling",
+  Description = "Touch Fling",
+  CurrentValue = false,
+  Callback = function(value29)
+    v8 = value29
+
+    if v8 and not v10 then
+      v10 = coroutine.create(f13)
+      coroutine.resume(v10)
+    elseif not v8 then
+      v10 = nil
+    end
+  end,
+}, "TouchFlingToggle")
+
+local function f15()
+  local v11 = { "All" }
+  local v12 = false
+
+  local function f16(p7)
+    local lower = p7:lower()
+
+    if lower == "all" or lower == "others" then
+      v12 = true
+      return
+    elseif lower == "random" then
+      local getPlayers = players:GetPlayers()
+
+      if table.find(getPlayers, localPlayer) then
+        table.remove(getPlayers, table.find(getPlayers, localPlayer))
+      end
+
+      return getPlayers[math.random(#getPlayers)]
+    else
+      if lower ~= "random" and lower ~= "all" and lower ~= "others" then
+        local v13 = next
+        local v14, v15 = players:GetPlayers()
+
+        for v16, v17 in v13, v14, v15 do
+          if v17 ~= localPlayer then
+            if v17.Name:lower():match("^" .. lower) then
+              return v17
+            end
+
+            if v17.DisplayName:lower():match("^" .. lower) then
+              return v17
+            end
+          end
+        end
+
+        return
+      end
+
+      return
+    end
+  end
+
+  local function f17(title, text, duration)
+    starterGui:SetCore("SendNotification", { Title = title, Text = text, Duration = duration })
+  end
+
+  local function f18(p8)
+    local character3 = localPlayer.Character
+    local humanoid2 = character3 and character3:FindFirstChildOfClass("Humanoid")
+    local rootPart = humanoid2 and humanoid2.RootPart
+    local character4 = p8.Character
+    local humanoid3
+
+    if character4:FindFirstChildOfClass("Humanoid") then
+      humanoid3 = character4:FindFirstChildOfClass("Humanoid")
+    end
+
+    local rootPart2
+
+    if humanoid3 and humanoid3.RootPart then
+      rootPart2 = humanoid3.RootPart
+    end
+
+    local head
+
+    if character4:FindFirstChild("Head") then
+      head = character4.Head
+    end
+
+    local accessory
+
+    if character4:FindFirstChildOfClass("Accessory") then
+      accessory = character4:FindFirstChildOfClass("Accessory")
+    end
+
+    local accessoy = Accessoy
+    local handle
+
+    if accessoy and accessory:FindFirstChild("Handle") then
+      handle = accessory.Handle
+    end
+
+    local v18 = character3 and humanoid2 and rootPart
+    local magnitude, f19
+
+    if v18 then
+      if rootPart.Velocity.Magnitude < 50 then
+        getgenv().OldPos = rootPart.CFrame
+      end
+
+      if head then
+        workspace.CurrentCamera.CameraSubject = head
+      elseif not head and handle then
+        workspace.CurrentCamera.CameraSubject = handle
+      elseif humanoid3 and rootPart2 then
+        workspace.CurrentCamera.CameraSubject = humanoid3
+      end
+
+      if not character4:FindFirstChildWhichIsA("BasePart") then
+        return
+      else
+        function f19(p9, p10, p11)
+          rootPart.CFrame = CFrame.new(p9.Position) * p10 * p11
+          character3:SetPrimaryPartCFrame(CFrame.new(p9.Position) * p10 * p11)
+
+          rootPart.Velocity = Vector3.new(90000000, 900000000, 90000000)
+          rootPart.RotVelocity = Vector3.new(900000000, 900000000, 900000000)
+        end
+
+        local function f20(p12)
+          local v19 = tick()
+          local total = 0
+
+          if not (p12.Velocity.Magnitude > 500) then
+            if not (p12.Parent ~= p8.Character) then
+              if not (p8.Parent ~= players) then
+                if not (not p8.Character == character4) then
+                  if not humanoid3.Sit then
+                    v335 = humanoid2.Health <= 0 or tick() > v19 + 2
+                  end
+                end
+              end
+            end
+          end
+
+          local sit
+
+          repeat
+            if rootPart and humanoid3 then
+              if p12.Velocity.Magnitude < 50 then
+                total = total + 100
+
+                f19(p12, CFrame.new(0, 1.5, 0)
+                  + humanoid3.MoveDirection * p12.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+                task.wait()
+
+                f19(p12, CFrame.new(0, -1.5, 0)
+                  + humanoid3.MoveDirection * p12.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+                task.wait()
+
+                f19(p12, CFrame.new(2.25, 1.5, -2.25)
+                  + humanoid3.MoveDirection * p12.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+                task.wait()
+
+                f19(p12, CFrame.new(-2.25, -1.5, 2.25)
+                  + humanoid3.MoveDirection * p12.Velocity.Magnitude / 1.25, CFrame.Angles(math.rad(total), 0, 0))
+
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, 1.5, 0) + humanoid3.MoveDirection,
+                  CFrame.Angles(math.rad(total), 0, 0)
+                )
+
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, -1.5, 0) + humanoid3.MoveDirection,
+                  CFrame.Angles(math.rad(total), 0, 0)
+                )
+
+                task.wait()
+              else
+                f19(
+                  p12, CFrame.new(0, 1.5, humanoid3.WalkSpeed),
+                  CFrame.Angles(math.rad(90), 0, 0)
+                )
+
+                task.wait()
+                f19(p12, CFrame.new(0, -1.5, -humanoid3.WalkSpeed), CFrame.Angles(0, 0, 0))
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, 1.5, humanoid3.WalkSpeed),
+                  CFrame.Angles(math.rad(90), 0, 0)
+                )
+
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, 1.5, rootPart2.Velocity.Magnitude / 1.25),
+                  CFrame.Angles(math.rad(90), 0, 0)
+                )
+
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, -1.5, -rootPart2.Velocity.Magnitude / 1.25),
+                  CFrame.Angles(0, 0, 0)
+                )
+
+                task.wait()
+
+                f19(
+                  p12, CFrame.new(0, 1.5, rootPart2.Velocity.Magnitude / 1.25),
+                  CFrame.Angles(math.rad(90), 0, 0)
+                )
+
+                task.wait()
+                f19(p12, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(90), 0, 0))
+                task.wait()
+                f19(p12, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                task.wait()
+                f19(p12, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(-90), 0, 0))
+                task.wait()
+                f19(p12, CFrame.new(0, -1.5, 0), CFrame.Angles(0, 0, 0))
+                task.wait()
+              end
+
+              local v20 = p12.Velocity.Magnitude > 500
+
+              sit = v20
+
+              sit = v20 or p12.Parent ~= p8.Character or p8.Parent ~= players
+                or not p8.Character == character4 or humanoid3.Sit or humanoid2.Health <= 0
+                or tick() > v19 + 2
+            else
+              break
+            end
+          until sit
+        end
+
+        workspace.FallenPartsDestroyHeight = (0 / 0)
+
+        local epixVel = Instance.new("BodyVelocity")
+        epixVel.Name = "EpixVel"
+        epixVel.Parent = rootPart
+        epixVel.Velocity = Vector3.new(900000000, 900000000, 900000000)
+        epixVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+        humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+
+        if rootPart2 and head then
+          if (rootPart2.CFrame.p - head.CFrame.p).Magnitude > 5 then
+            f20(head)
+          else
+            f20(rootPart2)
+          end
+
+          epixVel:Destroy()
+          humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+          workspace.CurrentCamera.CameraSubject = humanoid2
+          magnitude = (rootPart.Position - getgenv().OldPos.p).Magnitude
+
+          repeat
+            rootPart.CFrame = getgenv().OldPos * CFrame.new(0, 0.5, 0)
+            character3:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, 0.5, 0))
+            humanoid2:ChangeState("GettingUp")
+
+            table.foreach(character3:GetChildren(), function(p13, p14)
+              if p14:IsA("BasePart") then
+                local vector = Vector3.new()
+                local vector2 = Vector3.new()
+
+                p14.Velocity = vector
+                p14.RotVelocity = vector2
+              end
+            end)
+
+            task.wait()
+          until (rootPart.Position - getgenv().OldPos.p).Magnitude < 25
+
+          workspace.FallenPartsDestroyHeight = getgenv().FPDH
+          return
+        end
+
+        if rootPart2 and not head then
+          f20(rootPart2)
+          epixVel:Destroy()
+          humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+          workspace.CurrentCamera.CameraSubject = humanoid2
+          magnitude = (rootPart.Position - getgenv().OldPos.p).Magnitude
+
+          repeat
+            rootPart.CFrame = getgenv().OldPos * CFrame.new(0, 0.5, 0)
+            character3:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, 0.5, 0))
+            humanoid2:ChangeState("GettingUp")
+
+            table.foreach(character3:GetChildren(), function(p15, p16)
+              if p16:IsA("BasePart") then
+                local vector3 = Vector3.new()
+                local vector4 = Vector3.new()
+
+                p16.Velocity = vector3
+                p16.RotVelocity = vector4
+              end
+            end)
+
+            task.wait()
+          until (rootPart.Position - getgenv().OldPos.p).Magnitude < 25
+
+          workspace.FallenPartsDestroyHeight = getgenv().FPDH
+          return
+        end
+
+        if not rootPart2 and head then
+          f20(head)
+          epixVel:Destroy()
+          humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+          workspace.CurrentCamera.CameraSubject = humanoid2
+          magnitude = (rootPart.Position - getgenv().OldPos.p).Magnitude
+
+          repeat
+            rootPart.CFrame = getgenv().OldPos * CFrame.new(0, 0.5, 0)
+            character3:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, 0.5, 0))
+            humanoid2:ChangeState("GettingUp")
+
+            table.foreach(character3:GetChildren(), function(p17, p18)
+              if p18:IsA("BasePart") then
+                local vector5 = Vector3.new()
+                local vector6 = Vector3.new()
+
+                p18.Velocity = vector5
+                p18.RotVelocity = vector6
+              end
+            end)
+
+            task.wait()
+          until (rootPart.Position - getgenv().OldPos.p).Magnitude < 25
+
+          workspace.FallenPartsDestroyHeight = getgenv().FPDH
+          return
+        end
+
+        if not rootPart2 and not head and accessory and handle then
+          f20(handle)
+          epixVel:Destroy()
+          humanoid2:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+          workspace.CurrentCamera.CameraSubject = humanoid2
+          magnitude = (rootPart.Position - getgenv().OldPos.p).Magnitude
+
+          repeat
+            rootPart.CFrame = getgenv().OldPos * CFrame.new(0, 0.5, 0)
+            character3:SetPrimaryPartCFrame(getgenv().OldPos * CFrame.new(0, 0.5, 0))
+            humanoid2:ChangeState("GettingUp")
+
+            table.foreach(character3:GetChildren(), function(p19, p20)
+              if p20:IsA("BasePart") then
+                local vector7 = Vector3.new()
+                local vector8 = Vector3.new()
+
+                p20.Velocity = vector7
+                p20.RotVelocity = vector8
+              end
+            end)
+
+            task.wait()
+          until (rootPart.Position - getgenv().OldPos.p).Magnitude < 25
+
+          workspace.FallenPartsDestroyHeight = getgenv().FPDH
+          return
+        end
+
+        return f17("Error Occurred", "Target is missing everything", 5)
+      end
+    else
+      return f17("Error Occurred", "Random error", 5)
+    end
+  end
+
+  getgenv().Welcome = true
+
+  if v11[1] then
+    for key2, value30 in next, v11, nil do
+      f16(value30)
+    end
+
+    if v12 then
+      local v21 = next
+      local v22, v23 = players:GetPlayers()
+
+      for v24, v25 in v21, v22, v23 do
+        f18(v25)
+      end
+    end
+
+    for key3, value31 in next, v11, nil do
+      if f16(value31) and f16(value31) ~= localPlayer then
+        if f16(value31).UserId ~= 1414978355 then
+          local v26 = f16(value31)
+
+          if v26 then
+            f18(v26)
+          end
+        else
+          f17("Error Occurred", "This user is whitelisted! (Owner)", 5)
+        end
+      elseif not f16(value31) and not v12 then
+        f17("Error Occurred", "Username Invalid", 5)
+      end
+    end
+
+    return
+  end
+end
+
+trollFunTab:CreateButton({
+  Name = "Fling All",
+  Description = "Fling all players in the server",
+  Callback = function() f15() end,
+})
+
+trollFunTab:CreateDivider()
+trollFunTab:CreateLabel({ Text = "KJ Drop Kick Tool (Animation FE)", Style = 1 })
+
+local v27 = 180
+local v28 = false
+local v29 = 1.9
+local v30 = 4
+local v31 = 0.9
+
+local function f21()
+  if v28 then
+    return
+  else
+    v28 = true
+
+    local animation = Instance.new("Animation")
+    animation.AnimationId = "rbxassetid://17354976067"
+
+    ;(humanoid:FindFirstChildOfClass("Animator") or humanoid:WaitForChild("Animator")):LoadAnimation(animation):Play()
+    task.wait(v29)
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(1, 0, 1) * 1000000
+    bodyVelocity.P = 10000
+    bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * v27
+    bodyVelocity.Parent = humanoidRootPart
+
+    local v32 = tick()
+
+    while v28 and tick() - v32 < v30 do
+      bodyVelocity.Velocity = humanoidRootPart.CFrame.LookVector * v27
+      runService.Stepped:Wait()
+    end
+
+    local velocity2 = bodyVelocity.Velocity
+    local currentCamera = workspace.CurrentCamera
+    local v33 = 0
+    local v34 = tick()
+
+    while v33 < v31 do
+      v33 = tick() - v34
+
+      bodyVelocity.Velocity = Vector3.new(
+        currentCamera.CFrame.LookVector.X, 0, currentCamera.CFrame.LookVector.Z
+      ).Unit * (velocity2.Magnitude * (1 - v33 / v31))
+
+      runService.Stepped:Wait()
+    end
+
+    bodyVelocity:Destroy()
+    v28 = false
+    return
+  end
+end
+
+local connect19
+
+local function f22()
+  local dropKick202020 = localPlayer.Backpack:FindFirstChild("Drop Kick 20-20-20")
+
+  if dropKick202020 then
+    dropKick202020:Destroy()
+
+    if connect19 then
+      connect19:Disconnect()
+      connect19 = nil
+    end
+  end
+end
+
+local function f23()
+  if localPlayer.Backpack:FindFirstChild("Drop Kick 20-20-20") then
+    return
+  else
+    local dropKick2020202 = Instance.new("Tool")
+    dropKick2020202.Name = "Drop Kick 20-20-20"
+    dropKick2020202.Parent = localPlayer.Backpack
+    dropKick2020202.RequiresHandle = false
+
+    connect19 = dropKick2020202.Activated:Connect(f21)
+    return
+  end
+end
+
+trollFunTab:CreateBind({
+  Name = "Drop Kick",
+  CurrentBind = "T",
+  HoldToInteract = false,
+  Callback = function(value32) f21() end,
+}, "DropKickBind")
+
+trollFunTab:CreateButton({
+  Name = "Get Drop Kick Tool",
+  Description = "Gives you a drop kick tool",
+  Callback = function()
+    if not localPlayer.Backpack:FindFirstChild("Drop Kick 20-20-20") then
+      f23()
+
+      luna:Notification({
+        Title = "Drop Kick Tool",
+        Icon = "notifications_active",
+        ImageSource = "Material",
+        Content = "You have received the Drop Kick tool!",
+      })
+    else
+      luna:Notification({
+        Title = "Drop Kick Tool",
+        Icon = "_error",
+        ImageSource = "Material",
+        Content = "You already have the Drop Kick tool in your backpack!",
+      })
+    end
+  end,
+})
+
+trollFunTab:CreateButton({
+  Name = "Delete Drop Kick Tool",
+  Description = nil,
+  Callback = function() f22() end,
+})
+
+trollFunTab:CreateSlider({
+  Name = "Drop Kick Speed",
+  Range = { 50, 500 },
+  Increment = 1,
+  CurrentValue = v27,
+  Callback = function(value33) v27 = value33 end,
+}, "DropKickSpeedSlider")
+
+trollFunTab:CreateDivider()
+
+localPlayer.CharacterAdded:Connect(function(character5)
+  character = character5
+  humanoid = character:WaitForChild("Humanoid")
+  humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+  if connect then
+    connect:Disconnect()
+  end
+
+  connect = humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(f2)
+
+  if connect5 then
+    connect5:Disconnect()
+  end
+
+  connect5 = humanoid:GetPropertyChangedSignal("JumpPower"):Connect(f4)
+
+  if connect4 then
+    connect4:Disconnect()
+  end
+
+  connect4 = humanoid:GetPropertyChangedSignal("UseJumpPower"):Connect(f3)
+
+  if connect8 then
+    connect8:Disconnect()
+  end
+
+  connect8 = humanoid:GetPropertyChangedSignal("JumpHeight"):Connect(f5)
+
+  if connect9 then
+    connect9:Disconnect()
+  end
+
+  connect9 = workspace:GetPropertyChangedSignal("Gravity"):Connect(f6)
+
+  if connect10 then
+    connect10:Disconnect()
+  end
+
+  connect10 = workspace.CurrentCamera:GetPropertyChangedSignal("FieldOfView"):Connect(f7)
+
+  if connect11 then
+    connect11:Disconnect()
+  end
+
+  connect11 = humanoid:GetPropertyChangedSignal("HipHeight"):Connect(f8)
+
+  if v3 then
+    humanoid.UseJumpPower = false
+    humanoid.JumpHeight = jumpHeight
+  end
+
+  humanoid.HipHeight = hipHeight
+end)
+
+luna:LoadAutoloadConfig()
+
+-- https://leakd.vercel.app
